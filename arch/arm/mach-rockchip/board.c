@@ -110,6 +110,7 @@ static int rockchip_set_serialno(void)
 	/* Read serial number from vendor storage part */
 	memset(serialno_str, 0, VENDOR_SN_MAX);
 
+#if 0
 #ifdef CONFIG_ROCKCHIP_VENDOR_PARTITION
 	ret = vendor_storage_read(VENDOR_SN_ID, serialno_str, (VENDOR_SN_MAX-1));
 	if (ret > 0) {
@@ -124,6 +125,7 @@ static int rockchip_set_serialno(void)
 		serialno_str[i + 1] = 0x0;
 		env_set("serial#", serialno_str);
 	} else {
+#endif
 #endif
 #ifdef CONFIG_ROCKCHIP_EFUSE
 		struct udevice *dev;
@@ -160,8 +162,10 @@ static int rockchip_set_serialno(void)
 		snprintf(serialno_str, sizeof(serialno_str), "%llx", serialno);
 
 		env_set("serial#", serialno_str);
+#if 0
 #ifdef CONFIG_ROCKCHIP_VENDOR_PARTITION
 	}
+#endif
 #endif
 
 	return ret;
