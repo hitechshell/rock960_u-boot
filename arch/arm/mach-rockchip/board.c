@@ -162,6 +162,7 @@ static int rockchip_set_serialno(void)
 	/* Read serial number from vendor storage part */
 	memset(serialno_str, 0, VENDOR_SN_MAX);
 
+#if 0
 #ifdef CONFIG_ROCKCHIP_VENDOR_PARTITION
 	int j;
 
@@ -183,6 +184,7 @@ static int rockchip_set_serialno(void)
 			env_set("serial#", serialno_str);
 		}
 	}
+#endif
 #endif
 	if (!env_get("serial#")) {
 #if defined(CONFIG_ROCKCHIP_EFUSE) || defined(CONFIG_ROCKCHIP_OTP)
