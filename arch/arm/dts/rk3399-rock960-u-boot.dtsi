@@ -29,3 +29,31 @@
 	bootph-pre-ram;
 	bootph-some-ram;
 };
+
+&gpio0 {
+	bootph-pre-ram;
+};
+
+&i2c0_xfer {
+	bootph-pre-ram;
+};
+
+&io_domains {
+	bootph-pre-ram;
+};
+
+&sdmmc {
+	pinctrl-0 = <&sdmmc_clk &sdmmc_cmd &sdmmc_cd &sdmmc_bus4>;
+};
+
+&vcc_3v0 {
+    bootph-pre-ram;
+	/delete-property/ regulator-always-on;
+};
+
+&vcc_sd {
+    bootph-pre-ram;
+	/delete-property/ regulator-always-on;
+	/delete-property/ regulator-boot-on;
+	regulator-init-microvolt = <3000000>;
+};
