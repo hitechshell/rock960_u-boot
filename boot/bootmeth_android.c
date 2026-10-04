@@ -52,16 +52,15 @@ struct android_priv {
 
 static int android_check(struct udevice *dev, struct bootflow_iter *iter)
 {
-	/* This only works on mmc devices */
-	if (bootflow_iter_check_mmc(iter))
-		return log_msg_ret("mmc", -ENOTSUPP);
+	if (bootflow_iter_check_blk(iter))
+		return log_msg_ret("blk", -ENOTSUPP);
 
 	/*
 	 * This only works on whole devices, as multiple
 	 * partitions are needed to boot Android
 	 */
 	if (iter->part != 0)
-		return log_msg_ret("mmc part", -ENOTSUPP);
+		return log_msg_ret("blk part", -ENOTSUPP);
 
 	return 0;
 }
@@ -227,7 +226,7 @@ static int android_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 	if (ret < 0)
 		return log_msg_ret("part", ret);
 
-	ret = bcb_find_partition_and_load("mmc", desc->devnum, BCB_PART_NAME);
+	ret = bcb_find_partition_and_load(uclass_get_name(desc->uclass_id), desc->devnum, BCB_PART_NAME);
 	if (ret < 0)
 		return log_msg_ret("bcb load", ret);
 
