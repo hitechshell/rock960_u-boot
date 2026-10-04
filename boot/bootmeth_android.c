@@ -45,6 +45,7 @@
 struct android_priv {
 	enum android_boot_mode boot_mode;
 	char *slot;
+	char *boot_partition;
 	u32 header_version;
 	u32 boot_img_size;
 	u32 vendor_boot_img_size;
@@ -75,9 +76,9 @@ static int scan_boot_part(struct udevice *blk, struct android_priv *priv)
 	int ret;
 
 	if (priv->slot)
-		sprintf(partname, BOOT_PART_NAME "_%s", priv->slot);
+		sprintf(partname, "%s_%s", priv->boot_partition, priv->slot);
 	else
-		sprintf(partname, BOOT_PART_NAME);
+		sprintf(partname, priv->boot_partition);
 
 	ret = part_get_info_by_name(desc, partname, &partition);
 	if (ret < 0)
@@ -246,9 +247,11 @@ static int android_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 		bflow->os_name = strdup("Android (fastbootd)");
 	} else if (!strcmp("boot-recovery", command)) {
 		priv->boot_mode = ANDROID_BOOT_MODE_RECOVERY;
+		priv->boot_partition = strdup("recovery");
 		bflow->os_name = strdup("Android (recovery)");
 	} else {
 		priv->boot_mode = ANDROID_BOOT_MODE_NORMAL;
+		priv->boot_partition = strdup("boot");
 		bflow->os_name = strdup("Android");
 	}
 	if (!bflow->os_name) {
@@ -574,7 +577,7 @@ static int boot_android_normal(struct bootflow *bflow)
 	if (ret < 0)
 		return log_msg_ret("read slot", ret);
 
-	ret = read_slotted_partition(desc, "boot", priv->slot, priv->boot_img_size,
+	ret = read_slotted_partition(desc, priv->boot_partition, priv->slot, priv->boot_img_size,
 				     loadaddr);
 	if (ret < 0)
 		return log_msg_ret("read boot", ret);
@@ -626,9 +629,13 @@ static int android_boot(struct udevice *dev, struct bootflow *bflow)
 
 	switch (priv->boot_mode) {
 	case ANDROID_BOOT_MODE_NORMAL:
+		printf("ANDROID: NORMAL boot mode\n");
+		priv->boot_partition = strdup("boot");
 		ret = boot_android_normal(bflow);
 		break;
 	case ANDROID_BOOT_MODE_RECOVERY:
+		printf("ANDROID: RECOVERY boot mode\n");
+		priv->boot_partition = strdup("recovery");
 		ret = boot_android_recovery(bflow);
 		break;
 	case ANDROID_BOOT_MODE_BOOTLOADER:
